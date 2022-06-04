@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react'
 import logo from './logo.svg'
-import { io } from 'socket.io-client'
+import io from 'socket.io-client'
 // import './App.css'
 
 function App() {
+  const [socket, setSocket] = useState();
+
   useEffect(() => {
-    const socket = io('ws://localhost:8000');
+    const newSocket = io("http://localhost:8000");
+    setSocket(newSocket);
 
-    socket.on('connect', ()=>console.log(socket.id))
-    socket.on('connect_error', ()=>{
-      setTimeout(()=>socket.connect(),5000)
+    return () => newSocket.close();
+  }, [setSocket]);
+
+  useEffect(() => {
+    socket.on('connection', () => {
+      console.log(socket.id);
     })
-
-    return () => socket.close();
-  }, []);
+  }, [socket]);
 
   return (
     <div className="App">

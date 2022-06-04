@@ -1,29 +1,23 @@
 const express = require('express');
-const app = express();
 const cors = require('cors');
-
-app.use(cors());
-
 const http = require('http');
+
+const { io, connection } = require("./Connection");
+
+const app = express();
+app.use(cors());
 const server = http.createServer(app);
 
-const socketIO = require('socket.io');
+const socketIOMiddleware = (req, res, next) => {
+    req.io = io;
+    next();
+}
 
-const io = socketIO(server, {
-    cors: {
-        origin: 'http://localhost:3000'
-    }
-});
-
-io.on('connection', (socket) => {
-    console.log('client connected: ' + socket.id);
-});
-
-app.use('/', (req, res) => {
-    
+server.use('/', (req, res) => {
+    res.send(connection(io(server)));
 })
 
-app.listen(8000, (err) => {
+server.listen(8000, (err) => {
     if (err) console.log(err);
     console.log("Listening on 8000");
 })
