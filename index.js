@@ -13,12 +13,27 @@ const io = socketIO(server, {
     }
 });
 
+let players = [];
+
 server.listen(8000, (err) => {
     if (err) console.log(err);
     console.log("Listening on 8000");
     
     io.on('connection', (socket) => {
+        if (players.length === 0) players.push(socket.id);
+
         console.log('new client connected.');
-        socket.emit('connection', 'data');
+        console.log(`players: ${players}`);
+        console.log('');
+
+        socket.emit('connection', players);
+
+        socket.on('disconnect', () => {
+            let found = players.indexOf(socket.id);
+            players = players.splice(found, 0, '');
+            console.log(`player ${socket.id} disconnected`);
+            console.log(`players: ${players}`);
+            console.log('');
+        })
     });
 })

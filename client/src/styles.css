@@ -1,0 +1,7 @@
+.App {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: lightgray;
+    height: max(900px, 100vh);
+}
