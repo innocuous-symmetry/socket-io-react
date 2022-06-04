@@ -14,8 +14,9 @@ function App() {
   }, [setSocket]);
 
   useEffect(() => {
-    socket.on('connection', () => {
-      console.log(socket.id);
+    if (!socket) return;
+    socket.on('connection', (data) => {
+      console.log('connected!' + data);
     })
   }, [socket]);
 
