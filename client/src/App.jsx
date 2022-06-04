@@ -6,11 +6,11 @@ import PlayerCard from './components/PlayerCard';
 import "./styles.css";
 
 function App() {
-  const [socket, setSocket] = useState();
   const [state, setState] = useState({
     socket: null,
-    players: null,
     id: null,
+    players: [],
+    name: '',
   })
 
   useEffect(() => {
@@ -22,20 +22,22 @@ function App() {
 
   useEffect(() => {
     if (state.socket) {
-      state.socket.on('connect', (data) => {
-        console.log("connection to Express successful!");
-        console.log(data);
-
-        setState({
-          ...state,
-          id: state.socket.id,
-          players: data
+      state.socket.on('fire', (data) => {
+        console.log(`fire: ${data}`);
+        if (!state.players.length || !state.players.includes(data)) setState(() => {
+          let newPlayers = state.players;
+          newPlayers.push(data);
+          return {
+            ...state, players: newPlayers
+          }
         });
-
-        // state.socket.emit('connect', null);
-      })
+      });
     }
-  }, [state.socket]);
+  }, [state]);
+
+  const handleJoin = () => {
+    state.socket.emit('join', state.name);
+  }
 
   return (
     <div className="App">
@@ -43,8 +45,13 @@ function App() {
       {<h2>Your socket ID is: {state.id || ''}</h2>}
       {<h3>Active players: {state.players || ''}</h3>}
 
+      <input type="text" onChange={(e) => setState({...state, name: e.target.value})} />
+      <button onClick={handleJoin}>Join</button>
+
       <div className="players">
-        <PlayerCard name="Me" votes={null} />
+        <div id="messages"></div>
+        <h3>Players:</h3>
+        {state.players ? state.players.map(player => <PlayerCard name={player} votes={null}/>) : null}
       </div>
     </div>
   )
